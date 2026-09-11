@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>贪吃蛇 · snake-lab</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="game">
+      <h1>🐍 贪吃蛇</h1>
+
+      <div class="hud">
+        <span>分数 <strong id="score">0</strong></span>
+        <span>长度 <strong id="length">3</strong></span>
+      </div>
+
+      <div class="stage">
+        <canvas id="board" width="480" height="480"></canvas>
+        <div id="overlay" class="overlay">
+          <p id="overlay-text">按空格开始</p>
+        </div>
+      </div>
+
+      <p class="hint">方向键 / WASD 移动 · P 暂停 · R 重开</p>
+    </main>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
