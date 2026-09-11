@@ -1,0 +1,9 @@
+# 项目依赖清单
+#
+# 安装：
+#   .venv\Scripts\python.exe -m pip install -r requirements.txt
+#
+# 目前只有测试框架。游戏本身只用 Python 标准库，不需要任何第三方包。
+# （将来依赖变多时，可以拆成 requirements.txt 放运行依赖、
+#   requirements-dev.txt 放开发工具，现在没必要。）
+pytest>=8.0
