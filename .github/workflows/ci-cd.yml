@@ -57,6 +57,10 @@ jobs:
         working-directory: python-prototype
         run: python -m pytest -v
 
+      - name: 跑工具链测试
+        working-directory: tools
+        run: python -m pytest -v
+
   # ─────────── 第二段：CD，发布 ───────────
   deploy:
     name: 发布网页版
