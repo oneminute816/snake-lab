@@ -1,0 +1,14 @@
+{
+  "name": "snake-lab-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "贪吃蛇网页版 —— Node.js + Express + Canvas",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
