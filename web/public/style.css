@@ -219,3 +219,44 @@ canvas {
   color: var(--muted);
   font-size: 13px;
 }
+
+/* ── 窄屏适配 ─────────────────────────────────────────────
+   横着放下画布和排行榜需要 480 + 20 + 260 + 48 ≈ 808 像素。
+   窗口比这窄的时候，.board-column 设了 flex:none 拒绝压缩，
+   浏览器只能把排行榜整个推到屏幕右边外面去 —— 看着就像"没有排行榜"。
+
+   下面的规则把布局从横排改成竖排，并让画布跟着容器缩放。
+   手机、窄窗口、Codex 的内嵌浏览器面板都靠它。 */
+@media (max-width: 860px) {
+  .layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .board-column {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .hud {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .stage {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  canvas {
+    width: 100%;
+    height: auto;
+  }
+
+  .leaderboard {
+    width: 100%;
+    max-width: 480px;
+  }
+}
