@@ -2,7 +2,7 @@
 
 一个用于学习的实战小项目。目标不是做出一款多厉害的游戏，而是**把 Codex · Git · GitHub · Python · Node.js 五样工具的完整工作流走通一遍**。
 
-> 🚧 当前状态：开发中 · 正在进行 **M0 · 环境与工具链**
+> 🚧 当前状态：开发中 · **M1 已完成，终端版可以玩了**
 
 ---
 
@@ -38,7 +38,7 @@ snake-lab/
 ## 学习进度
 
 - [x] **M0** 环境与工具链：Git 配置、仓库初始化、推到 GitHub
-- [ ] **M1** Python 命令行版贪吃蛇 + pytest 单元测试
+- [x] **M1** Python 命令行版贪吃蛇 + pytest 单元测试
 - [ ] **M2** Node.js + Express + Canvas 网页版
 - [ ] **M3** GitHub Issue / PR 流程 + 排行榜后端与数据库
 - [ ] **M4** Python 工具链 + AI 自动玩 + 文档与发布
@@ -56,7 +56,26 @@ snake-lab/
 
 ## 本地运行
 
-还跑不起来呢——代码从 M1 开始写。每完成一个阶段，这里就会补上对应的运行说明。
+```powershell
+# 首次：建虚拟环境并装依赖
+cd snake-lab
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r python-prototype\requirements.txt
+
+# 玩
+cd python-prototype
+..\.venv\Scripts\python.exe main.py
+```
+
+方向键或 WASD 移动，空格开始，P 暂停，R 重开，Q 退出。
+详细说明见 [python-prototype/README.md](python-prototype/README.md)。
+
+测试：
+
+```powershell
+cd python-prototype
+..\.venv\Scripts\python.exe -m pytest -v
+```
 
 ## 许可
 
