@@ -56,11 +56,15 @@ class Snake:
         # 为什么要两个变量？见 turn() 的注释。
         self.next_direction = direction
 
-        # 从蛇头往左依次排开，摆出初始长度。
-        # 朝右走时身体在头左边，这样第一步不会撞到自己。
+        # 身体从蛇头往「身后」依次排开，摆出初始长度。
+        #
+        # 「身后」就是前进方向的反方向。朝右走身体在左边，朝上走身体在下方。
+        # 这里千万别写死成「永远往左」—— 那样朝左走时，头往前一步正好踩在
+        # 原来脖子的格子上，一开局就自己撞死自己。
+        dx, dy = DIRECTIONS[direction]
         head_x, head_y = start
         self.body: deque[Position] = deque(
-            (head_x - i, head_y) for i in range(length)
+            (head_x - dx * i, head_y - dy * i) for i in range(length)
         )
 
     @property
