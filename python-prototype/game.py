@@ -8,6 +8,7 @@
 
 import random
 from collections import deque
+from enum import Enum, auto
 
 # 四个方向，值是从当前格子走到下一个格子的位移 (dx, dy)。
 # 注意 y 轴是向下的：up 是 y - 1，不是 y + 1。
@@ -33,6 +34,26 @@ Position = tuple[int, int]
 # 吃到一颗食物的得分。写在这里而不是散落在代码里，
 # 以后想改成分数随长度递增，只需要动这一处。
 SCORE_PER_FOOD = 10
+
+
+class GameState(Enum):
+    """一局游戏当前所处的状态。"""
+
+    READY = auto()      # 还没开始，等玩家按开始
+    RUNNING = auto()    # 进行中
+    PAUSED = auto()     # 暂停
+    GAME_OVER = auto()  # 本局结束
+
+
+class Death(Enum):
+    """蛇的死因。
+
+    这里存英文标记而不是中文，是因为 game.py 管规则、main.py 管显示。
+    逻辑里塞中文提示语，将来做网页版就得翻译一遍，早晚会分叉。
+    """
+
+    WALL = "wall"  # 撞墙
+    SELF = "self"  # 撞到自己
 
 
 class Snake:
@@ -161,8 +182,15 @@ class Game:
         # 否则你没法写「第 3 步应该吃到食物」这种测试 —— 随机的东西测不了。
         self.rng = random.Random(seed)
 
+        # 记下开局参数，重开的时候要用
+        self.start_position = start
+        self.start_direction = direction
+        self.start_length = length
+
         self.snake = Snake(start=start, direction=direction, length=length)
         self.food: Position | None = None
+        self.state = GameState.READY
+        self.death: Death | None = None
         self.spawn_food()
 
     @property
@@ -198,22 +226,87 @@ class Game:
     def step(self) -> bool:
         """推进一帧，返回这一步是否吃到了食物。
 
-        顺序很讲究：先算出头**将要**走到哪，比对食物位置，再决定这次
-        要不要变长。不能先移动再判断 —— 那时候蛇头已经站在食物格子上了，
-        你没法区分它是刚到的，还是本来就在那。
+        顺序很讲究，一共四步，顺序不能换：
+
+        1. 只有 RUNNING 才动 —— 暂停中和已结束时调用它，什么都不该发生
+        2. 先算出头**将要**走到哪，再比对食物位置（不能先移动后判断：
+           移动完蛇头已经站在食物格子上了，你没法区分它是刚到的还是本来就在那）
+        3. 判断这一步会不会死，会死就直接结束，不做移动
+        4. 都不死，才真的移动、加分、补食物
         """
-        ate = self.snake.next_head() == self.food
+        if self.state is not GameState.RUNNING:
+            return False
+
+        next_head = self.snake.next_head()
+        ate = next_head == self.food
+
+        death = self.collision_at(next_head, growing=ate)
+        if death is not None:
+            self.state = GameState.GAME_OVER
+            self.death = death
+            return False
 
         self.snake.step(grow=ate)
 
         if ate:
             self.score += SCORE_PER_FOOD
-            self.spawn_food()  # 吃掉一颗，立刻在别处补一颗
+            self.spawn_food()
 
         return ate
 
+    def collision_at(self, position: Position, growing: bool = False) -> Death | None:
+        """检查走到 position 这个格子会不会死。安全则返回 None。
+
+        growing=True 表示这一步会吃到食物、尾巴不会让开。
+        """
+        x, y = position
+        if not (0 <= x < self.width and 0 <= y < self.height):
+            return Death.WALL
+
+        blocking = set(self.snake.body)
+        if not growing:
+            # 这一步尾巴会让开身后那一格，所以「头撞到自己的尾巴尖」不算死。
+            # 这是贪吃蛇最容易写错的细节之一：差一格就是差一条命。
+            blocking.discard(self.snake.tail)
+
+        if position in blocking:
+            return Death.SELF
+
+        return None
+
+    def start(self) -> None:
+        """开始游戏。只在 READY 状态下有效。"""
+        if self.state is GameState.READY:
+            self.state = GameState.RUNNING
+
+    def toggle_pause(self) -> None:
+        """在运行和暂停之间切换。其他状态下按了没反应。"""
+        if self.state is GameState.RUNNING:
+            self.state = GameState.PAUSED
+        elif self.state is GameState.PAUSED:
+            self.state = GameState.RUNNING
+
+    def reset(self) -> None:
+        """重开一局：分数清零，蛇回到起点，状态回到 READY。
+
+        注意这里是重新造了一条 Snake，而不是把旧蛇的 body 清空重填。
+        新建对象比「手动把每个字段改回初始值」可靠 —— 漏改一个字段，
+        就会出现「重开之后蛇还带着上一局身长」这种诡异现象。
+        """
+        self.score = 0
+        self.death = None
+        self.snake = Snake(
+            start=self.start_position,
+            direction=self.start_direction,
+            length=self.start_length,
+        )
+        self.food = None
+        self.spawn_food()
+        self.state = GameState.READY
+
     def __repr__(self) -> str:
         return (
-            f"Game(score={self.score}, length={len(self.snake)}, "
-            f"head={self.snake.head}, food={self.food})"
+            f"Game(state={self.state.name}, score={self.score}, "
+            f"length={len(self.snake)}, head={self.snake.head}, "
+            f"food={self.food}, death={self.death})"
         )
