@@ -1,0 +1,92 @@
+name: 测试与部署
+
+# 什么时候触发整个流水线
+on:
+  push:
+    branches: [main]
+  pull_request: # 开 PR 和往 PR 上推新提交时都跑
+  workflow_dispatch: # 也可以在 Actions 页面上手动点一下
+
+# 同一时间只跑一条流水线，连着推两次就把前一次的取消掉
+concurrency:
+  group: ci-cd
+  cancel-in-progress: true
+
+jobs:
+  # ─────────── 第一段：CI，跑测试 ───────────
+  test:
+    name: 跑测试
+    runs-on: ubuntu-latest
+    # 只给「读代码」的权限。测试这一步没有任何理由需要发布权限。
+    # 这种「每个环节只拿它必须的最小权限」的做法叫最小权限原则 ——
+    # 万一某一步被攻破，能造成的破坏有限。
+    permissions:
+      contents: read
+    steps:
+      - name: 取出代码
+        uses: actions/checkout@v4
+
+      - name: 装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      # npm ci 而不是 npm install：
+      # ci 严格照着 package-lock.json 装，版本一个字符都不会差，
+      # 而且 lock 文件和 package.json 对不上时会直接报错。
+      # CI 里要的正是这种「精确复现」，不是「装个大概」。
+      - name: 安装网页版依赖
+        working-directory: web
+        run: npm ci
+
+      - name: 跑网页版测试
+        working-directory: web
+        run: npm test
+
+      - name: 装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: 安装 Python 依赖
+        run: python -m pip install -r python-prototype/requirements.txt
+
+      - name: 跑 Python 测试
+        working-directory: python-prototype
+        run: python -m pytest -v
+
+  # ─────────── 第二段：CD，发布 ───────────
+  deploy:
+    name: 发布网页版
+    # needs: test 是整条流水线的关键。
+    # 测试没过，部署这一步根本不会开始 —— 坏代码上不了线。
+    needs: test
+    # 只在 main 分支上发布。PR 里测试照跑，但绝不部署：
+    # 别人提的 PR 要是能直接上线，那就乱套了。
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 取出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+
+      - name: 打包 web/public 目录
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 只发布这一个目录。Python 代码、测试、文档都不该出现在网站上。
+          path: web/public
+
+      - name: 发布
+        id: deployment
+        uses: actions/deploy-pages@v4
