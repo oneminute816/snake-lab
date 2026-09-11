@@ -1,0 +1,19 @@
+# Render 部署蓝图：https://render.com/docs/blueprint-spec
+#
+# 有这么一个文件，把带后端的版本发到公网就变成三步：
+#   1. 注册 Render 账号，用 GitHub 登录
+#   2. New → Blueprint → 选这个仓库
+#   3. 点确认
+#
+# ⚠️ 免费套餐的磁盘是临时的：每次重新部署，SQLite 里的分数都会清零。
+#    想长期保存，要么买一块持久磁盘，要么把数据挪到外部数据库服务。
+#    这不是配置写错了，是免费套餐的固有限制。
+services:
+  - type: web
+    name: snake-lab
+    runtime: node
+    plan: free
+    rootDir: web
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
