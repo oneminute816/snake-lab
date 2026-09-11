@@ -16,6 +16,8 @@ env/
 *.sqlite
 *.sqlite3
 *.db
+*.db-wal
+*.db-shm
 
 # ── 密钥与本地配置（绝对不能提交）────────
 .env
