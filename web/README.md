@@ -1,6 +1,6 @@
 # web · Node.js + Express + Canvas 网页版
 
-**阶段 M2 已完成。** 浏览器里能玩了。
+**阶段 M2、M3 已完成。** 浏览器里能玩，成绩能存进数据库。
 
 ## 怎么跑
 
@@ -21,6 +21,8 @@ npm start
 | P | 暂停 / 继续 |
 | R | 重开一局 |
 
+玩完一局后，如果分数大于 0，会弹出输入框让你填名字提交成绩。
+
 ## 跑测试
 
 ```powershell
@@ -30,29 +32,68 @@ npm test
 用的是 **Node 自带的测试运行器**（`node --test`），不需要装 Jest、Mocha 之类的框架。
 JavaScript 世界不一定非得装一堆东西才能写测试。
 
+测试里也会真的起一个服务器、真的发 HTTP 请求 —— 光测数据层是测不出
+「路由挂对没有、状态码对不对」的。
+
 ## 文件都是干什么的
 
 ```
-web/
+ web/
 ├── public/            # 前端：浏览器直接加载的静态文件
 │   ├── index.html     # 页面结构
 │   ├── style.css      # 样式
 │   ├── game.js        # 游戏规则（纯逻辑，不碰浏览器）
-│   └── main.js        # Canvas 绘制 + 键盘输入 + 游戏循环
-├── server.js          # Express 服务器，把 public/ 发给浏览器
+│   ├── main.js        # Canvas 绘制 + 键盘输入 + 游戏循环
+│   └── api.js         # 跟后端通信
+├── src/
+│   └── scores.js      # 数据层：建表、写入、查询、输入校验
+├── server.js          # Express 服务器 + 排行榜 API
 ├── test/
-│   └── game.test.js   # 规则层测试
+│   ├── game.test.js   # 规则层测试
+│   ├── scores.test.js # 数据层与校验测试
+│   └── api.test.js    # HTTP 接口测试
+├── data/              # SQLite 数据库文件（已被 .gitignore 排除）
 └── package.json       # 依赖清单 + npm 脚本
 ```
 
-## 计划中的接口
-
-M3 会加进 `server.js`：
+## 排行榜接口
 
 | 方法 | 路径 | 作用 |
 | --- | --- | --- |
-| `POST` | `/api/scores` | 提交一条成绩 |
-| `GET` | `/api/scores/top` | 获取排行榜前 10 名 |
+| `POST` | `/api/scores` | 提交一条成绩，body 形如 `{"name": "...", "score": 120}` |
+| `GET` | `/api/scores/top?limit=10` | 取排行榜前 N 名 |
+| `GET` | `/api/health` | 健康检查，返回 `{"ok": true}` |
+
+拿命令行试一下（注意是 `curl.exe`，PowerShell 里的 `curl` 是另一个命令的别名）：
+
+```powershell
+curl.exe -X POST http://localhost:3000/api/scores -H "Content-Type: application/json" -d "{\"name\":\"测试\",\"score\":120}"
+curl.exe http://localhost:3000/api/scores/top
+```
+
+## 数据库
+
+用的是 **Node 24 自带的 `node:sqlite`**，不需要装任何第三方数据库驱动。
+
+数据存在 `web/data/scores.db`，重启服务器后分数还在。这个目录被 `.gitignore`
+排除了 —— **数据库文件不该进版本库**，它是运行时的数据，不是代码。
+
+想清空排行榜，直接删掉那个文件就行。
+
+## 静态部署的限制
+
+同一份前端代码有两种部署形态：
+
+| 部署方式 | 有后端吗 | 排行榜 |
+| --- | --- | --- |
+| `npm start` 本地跑 | 有 | 可用 |
+| GitHub Pages | 没有 | 不可用 |
+
+`main.js` 启动时会先探一下 `/api/health`，探不到就把排行榜标成不可用，
+**游戏本体完全不受影响**。这种「少了个零件也照样能用」的设计叫优雅降级。
+
+想让排行榜在公网上也能用，得把整个 `web/` 部署到能跑 Node 进程的平台
+（Render、Railway 之类），而不是静态托管。这是 M4 的事。
 
 ## 和 Python 版的对照
 
@@ -79,7 +120,7 @@ M2 最有价值的部分其实是这张表 —— 同一套规则写两遍，才
 ## 怎么验证能跑
 
 ```powershell
-npm test                     # 18 条规则测试
-npm start                    # 另开一个终端
-curl http://localhost:3000   # 应该返回 index.html
+npm test                          # 40 条测试
+npm start                         # 另开一个终端
+curl.exe http://localhost:3000    # 应该返回 index.html
 ```
