@@ -1,8 +1,10 @@
 # 🐍 snake-lab（贪吃蛇实验室）
 
+![测试与部署](https://github.com/oneminute816/snake-lab/actions/workflows/ci-cd.yml/badge.svg)
+
 一个用于学习的实战小项目。目标不是做出一款多厉害的游戏，而是**把 Codex · Git · GitHub · Python · Node.js 五样工具的完整工作流走通一遍**。
 
-> 🚧 当前状态：开发中 · **M2 已完成，终端版和网页版都能玩了**
+> 🚧 当前状态：开发中 · **M3 代码完成，等 PR 合并**
 
 🔗 **在线试玩**：<https://oneminute816.github.io/snake-lab/>
 
@@ -14,6 +16,9 @@
 - 🌐 **网页版**：浏览器里用方向键玩的 Canvas 版本
 - 🏆 **排行榜**：成绩存进数据库，关掉服务器再打开还在
 - 🤖 **Python 工具链**：分数统计分析 + 一个会自己玩游戏的 AI
+
+> ⚠️ 顶部那个在线试玩是**纯静态部署**，没有后端，所以排行榜不可用 ——
+> 游戏照常能玩，只是不记分。想要完整功能，按下面的说明在本地跑。
 
 ## 为什么选贪吃蛇
 
@@ -42,7 +47,7 @@ snake-lab/
 - [x] **M0** 环境与工具链：Git 配置、仓库初始化、推到 GitHub
 - [x] **M1** Python 命令行版贪吃蛇 + pytest 单元测试
 - [x] **M2** Node.js + Express + Canvas 网页版
-- [ ] **M3** GitHub Issue / PR 流程 + 排行榜后端与数据库
+- [~] **M3** GitHub Issue / PR 流程 + 排行榜后端与数据库 ← 代码完成，等 PR 合并
 - [ ] **M4** Python 工具链 + AI 自动玩 + 文档与发布
 
 ## 技术栈

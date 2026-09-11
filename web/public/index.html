@@ -10,19 +10,45 @@
     <main class="game">
       <h1>🐍 贪吃蛇</h1>
 
-      <div class="hud">
-        <span>分数 <strong id="score">0</strong></span>
-        <span>长度 <strong id="length">3</strong></span>
-      </div>
+      <div class="layout">
+        <section class="board-column">
+          <div class="hud">
+            <span>分数 <strong id="score">0</strong></span>
+            <span>长度 <strong id="length">3</strong></span>
+          </div>
 
-      <div class="stage">
-        <canvas id="board" width="480" height="480"></canvas>
-        <div id="overlay" class="overlay">
-          <p id="overlay-text">按空格开始</p>
-        </div>
-      </div>
+          <div class="stage">
+            <canvas id="board" width="480" height="480"></canvas>
 
-      <p class="hint">方向键 / WASD 移动 · P 暂停 · R 重开</p>
+            <div id="overlay" class="overlay">
+              <div class="overlay-inner">
+                <p id="overlay-text">按空格开始</p>
+
+                <form id="submit-form" class="submit-form" hidden>
+                  <input
+                    id="player-name"
+                    type="text"
+                    maxlength="20"
+                    placeholder="你的名字"
+                    autocomplete="off"
+                  />
+                  <button type="submit">提交成绩</button>
+                </form>
+
+                <p id="submit-message" class="submit-message"></p>
+              </div>
+            </div>
+          </div>
+
+          <p class="hint">方向键 / WASD 移动 · P 暂停 · R 重开</p>
+        </section>
+
+        <aside class="leaderboard">
+          <h2>🏆 排行榜</h2>
+          <ol id="leaderboard-list" class="leaderboard-list"></ol>
+          <p id="leaderboard-note" class="leaderboard-note">加载中…</p>
+        </aside>
+      </div>
     </main>
 
     <script type="module" src="main.js"></script>
