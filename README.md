@@ -2,7 +2,7 @@
 
 一个用于学习的实战小项目。目标不是做出一款多厉害的游戏，而是**把 Codex · Git · GitHub · Python · Node.js 五样工具的完整工作流走通一遍**。
 
-> 🚧 当前状态：开发中 · **M1 已完成，终端版可以玩了**
+> 🚧 当前状态：开发中 · **M2 已完成，终端版和网页版都能玩了**
 
 ---
 
@@ -39,7 +39,7 @@ snake-lab/
 
 - [x] **M0** 环境与工具链：Git 配置、仓库初始化、推到 GitHub
 - [x] **M1** Python 命令行版贪吃蛇 + pytest 单元测试
-- [ ] **M2** Node.js + Express + Canvas 网页版
+- [x] **M2** Node.js + Express + Canvas 网页版
 - [ ] **M3** GitHub Issue / PR 流程 + 排行榜后端与数据库
 - [ ] **M4** Python 工具链 + AI 自动玩 + 文档与发布
 
@@ -56,6 +56,8 @@ snake-lab/
 
 ## 本地运行
 
+### 终端版（Python）
+
 ```powershell
 # 首次：建虚拟环境并装依赖
 cd snake-lab
@@ -68,13 +70,29 @@ cd python-prototype
 ```
 
 方向键或 WASD 移动，空格开始，P 暂停，R 重开，Q 退出。
-详细说明见 [python-prototype/README.md](python-prototype/README.md)。
 
-测试：
+### 网页版（Node.js）
 
 ```powershell
+cd snake-lab/web
+npm install     # 只需第一次
+npm start
+```
+
+然后浏览器打开 <http://localhost:3000>。方向键或 WASD 移动，空格开始，P 暂停，R 重开。
+
+详细说明见 [python-prototype/README.md](python-prototype/README.md) 和 [web/README.md](web/README.md)。
+
+### 跑测试
+
+```powershell
+# Python 版：24 条
 cd python-prototype
 ..\.venv\Scripts\python.exe -m pytest -v
+
+# 网页版：18 条
+cd web
+npm test
 ```
 
 ## 许可
